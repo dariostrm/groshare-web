@@ -1,2 +1,101 @@
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-.navbar-brand { font-weight: bold; color: #28a745 !important; } /* GroShare green */
+
+/* 1. Navbar Background: The vibrant green gradient is back! */
+.navbar-groshare {
+    background: linear-gradient(135deg, #00b09b, #96c93d) !important;
+    padding: 15px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+}
+
+/* 2. Logo Area: Flex container for text and annotation */
+.navbar-groshare .navbar-brand {
+    display: flex;
+    align-items: center;
+    transform: rotate(-2deg); /* Organic, hasty tilt */
+    transition: transform 0.3s ease;
+    text-decoration: none;
+}
+
+.navbar-groshare .navbar-brand:hover {
+    transform: rotate(1deg) scale(1.03);
+}
+
+/* 3. The Handwritten 'GroShare' Text with Organic Underline */
+.navbar-groshare .navbar-brand .groshare-text {
+    font-family: 'Caveat', cursive;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    position: relative; 
+}
+
+/* The minimal underline drawn by the pencil */
+.navbar-groshare .navbar-brand .groshare-text::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; /* Positioned just under the letters */
+    left: 0;
+    width: 100%;
+    height: 2px; /* Super minimal line */
+    background-color: #ffffff;
+    border-radius: 2px;
+    transform: rotate(-1deg); /* Slightly uneven, hand-drawn look */
+}
+
+/* 4. The Symbolic Annotation (Minimal Pencil & Tick) */
+.navbar-groshare .navbar-brand .groshare-annotation {
+    display: flex;
+    align-items: center;
+    margin-left: 8px; /* Space between text and icons */
+}
+
+/* The pencil icon */
+.navbar-groshare .navbar-brand .fa-pencil-alt {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+    transform: scaleX(-1); /* Flips the pencil to point towards the text */
+    margin-right: 5px;
+}
+
+/* The tick icon */
+.navbar-groshare .navbar-brand .fa-check {
+    font-size: 1.4rem;
+    color: #ffffff;
+    transform: translateY(-2px); /* Slight lift */
+}
+
+/* 5. Menu Links: Handwritten, white text */
+.navbar-groshare .nav-link {
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9) !important; /* Soft white */
+    margin: 0 8px;
+    transition: all 0.3s ease;
+}
+
+/* Hover: Yellow highlighter effect on the green background */
+.navbar-groshare .nav-link:hover {
+    color: #ffeaa7 !important; /* Warm yellow highlight */
+    transform: translateY(-2px) rotate(-1deg); /* Playful jump */
+}
+
+/* 6. Register Button: Hand-drawn white box */
+.btn-register {
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem !important;
+    background-color: transparent !important;
+    color: #ffffff !important; 
+    border: 2px solid #ffffff !important;
+    border-radius: 8px !important; /* Slightly irregular box */
+    transform: rotate(1deg);
+    transition: all 0.3s ease;
+    padding: 5px 20px !important;
+}
+
+.btn-register:hover {
+    background-color: #ffffff !important;
+    color: #00b09b !important; /* Green text emerges on hover */
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 2px 4px 0px rgba(0, 0, 0, 0.15); /* Marker shadow */
+}

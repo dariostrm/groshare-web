@@ -1,263 +1,264 @@
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
 /* 1. Navbar Background: The vibrant green gradient is back! */
 .navbar-groshare {
-    background: linear-gradient(135deg, #00b09b, #96c93d) !important;
-    padding: 15px 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+  background: linear-gradient(135deg, #00b09b, #96c93d) !important;
+  padding: 15px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
 }
 
 /* 2. Logo Area: Flex container for text and annotation */
 .navbar-groshare .navbar-brand {
-    display: flex;
-    align-items: center;
-    transform: rotate(-2deg); /* Organic, hasty tilt */
-    transition: transform 0.3s ease;
-    text-decoration: none;
+  display: flex;
+  align-items: center;
+  transform: rotate(-2deg); /* Organic, hasty tilt */
+  transition: transform 0.3s ease;
+  text-decoration: none;
 }
 
 .navbar-groshare .navbar-brand:hover {
-    transform: rotate(1deg) scale(1.03);
+  transform: rotate(1deg) scale(1.03);
 }
 
 /* 3. The Handwritten 'GroShare' Text with Organic Underline */
 .navbar-groshare .navbar-brand .groshare-text {
-    font-family: 'Caveat', cursive;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #ffffff !important;
-    position: relative; 
+  font-family: "Caveat", cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  position: relative;
 }
 
 /* The minimal underline drawn by the pencil */
 .navbar-groshare .navbar-brand .groshare-text::after {
-    content: '';
-    position: absolute;
-    bottom: 4px; /* Positioned just under the letters */
-    left: 0;
-    width: 100%;
-    height: 2px; /* Super minimal line */
-    background-color: #ffffff;
-    border-radius: 2px;
-    transform: rotate(-1deg); /* Slightly uneven, hand-drawn look */
+  content: "";
+  position: absolute;
+  bottom: 4px; /* Positioned just under the letters */
+  left: 0;
+  width: 100%;
+  height: 2px; /* Super minimal line */
+  background-color: #ffffff;
+  border-radius: 2px;
+  transform: rotate(-1deg); /* Slightly uneven, hand-drawn look */
 }
 
 /* 4. The Symbolic Annotation (Minimal Pencil & Tick) */
 .navbar-groshare .navbar-brand .groshare-annotation {
-    display: flex;
-    align-items: center;
-    margin-left: 8px; /* Space between text and icons */
+  display: flex;
+  align-items: center;
+  margin-left: 8px; /* Space between text and icons */
 }
 
 /* The pencil icon */
 .navbar-groshare .navbar-brand .fa-pencil-alt {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
-    transform: scaleX(-1); /* Flips the pencil to point towards the text */
-    margin-right: 5px;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+  transform: scaleX(-1); /* Flips the pencil to point towards the text */
+  margin-right: 5px;
 }
 
 /* The tick icon */
 .navbar-groshare .navbar-brand .fa-check {
-    font-size: 1.4rem;
-    color: #ffffff;
-    transform: translateY(-2px); /* Slight lift */
+  font-size: 1.4rem;
+  color: #ffffff;
+  transform: translateY(-2px); /* Slight lift */
 }
 
 /* 5. Menu Links: Handwritten, white text */
 .navbar-groshare .nav-link {
-    font-family: 'Caveat', cursive;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9) !important; /* Soft white */
-    margin: 0 8px;
-    transition: all 0.3s ease;
+  font-family: "Caveat", cursive;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9) !important; /* Soft white */
+  margin: 0 8px;
+  transition: all 0.3s ease;
 }
 
 /* Hover: Yellow highlighter effect on the green background */
 .navbar-groshare .nav-link:hover {
-    color: #ffeaa7 !important; /* Warm yellow highlight */
-    transform: translateY(-2px) rotate(-1deg); /* Playful jump */
+  color: #ffeaa7 !important; /* Warm yellow highlight */
+  transform: translateY(-2px) rotate(-1deg); /* Playful jump */
 }
 
 /* 6. Register Button: Hand-drawn white box */
 .btn-register {
-    font-family: 'Caveat', cursive;
-    font-size: 1.5rem !important;
-    background-color: transparent !important;
-    color: #ffffff !important; 
-    border: 2px solid #ffffff !important;
-    border-radius: 8px !important; /* Slightly irregular box */
-    transform: rotate(1deg);
-    transition: all 0.3s ease;
-    padding: 5px 20px !important;
+  font-family: "Caveat", cursive;
+  font-size: 1.5rem !important;
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 8px !important; /* Slightly irregular box */
+  transform: rotate(1deg);
+  transition: all 0.3s ease;
+  padding: 5px 20px !important;
 }
 
 /* 7. Login & Register pages*/
 .register-container {
-    min-height: 80vh;
+  min-height: 80vh;
 }
 
 .register-card {
-    width: 100%;
-    max-width: 400px;
-    border-radius: 15px !important;
-    transform: rotate(-0.5deg);
+  width: 100%;
+  max-width: 400px;
+  border-radius: 15px !important;
+  transform: rotate(-0.5deg);
 }
 
 .register-title {
-    font-family: 'Caveat', cursive;
-    font-size: 2.8rem;
-    color: #00b09b;
+  font-family: "Caveat", cursive;
+  font-size: 2.8rem;
+  color: #00b09b;
 }
 
 .register-input {
-    border-radius: 10px !important;
-    border: 1px solid #ced4da;
+  border-radius: 10px !important;
+  border: 1px solid #ced4da;
 }
 
 .btn-register-submit {
-    font-family: 'Caveat', cursive;
-    font-size: 1.6rem !important;
-    background: linear-gradient(135deg, #00b09b, #96c93d) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 8px !important;
-    transition: transform 0.3s ease;
+  font-family: "Caveat", cursive;
+  font-size: 1.6rem !important;
+  background: linear-gradient(135deg, #00b09b, #96c93d) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 8px !important;
+  transition: transform 0.3s ease;
 }
 
 .btn-register-submit:hover {
-    transform: scale(1.02) rotate(1deg);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02) rotate(1deg);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .auth-footer-text {
-    font-family: 'Caveat', cursive;
-    font-size: 1.2rem;
+  font-family: "Caveat", cursive;
+  font-size: 1.2rem;
 }
 
 .auth-link {
-    color: #00b09b;
-    text-decoration: none;
-    font-weight: bold;
-    border-bottom: 2px solid transparent;
+  color: #00b09b;
+  text-decoration: none;
+  font-weight: bold;
+  border-bottom: 2px solid transparent;
 }
 
 .auth-link:hover {
-    border-bottom: 2px solid #96c93d;
+  border-bottom: 2px solid #96c93d;
 }
 
 .btn-register:hover {
-    background-color: #ffffff !important;
-    color: #00b09b !important; /* Green text emerges on hover */
-    transform: translateY(-2px) rotate(-1deg);
-    box-shadow: 2px 4px 0px rgba(0, 0, 0, 0.15); /* Marker shadow */
+  background-color: #ffffff !important;
+  color: #00b09b !important; /* Green text emerges on hover */
+  transform: translateY(-2px) rotate(-1deg);
+  box-shadow: 2px 4px 0px rgba(0, 0, 0, 0.15); /* Marker shadow */
 }
 
 .download-btn {
-    margin-top: 80px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, #4f46e5, #3b82f6);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.25s ease;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  margin-top: 80px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 .download-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
-    background: linear-gradient(135deg, #4338ca, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #4338ca, #2563eb);
 }
 
 .info-section {
-    background-color: #f5f5f5;
-    border-top: 2px solid #e0e0e0;
-    margin-top: 200px;
+  background-color: #f5f5f5;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 200px;
 }
 
 .info-section h2 {
-    font-weight: 600;
-    margin-bottom: 15px;
+  font-weight: 600;
+  margin-bottom: 15px;
 }
 
 .info-section p.lead {
-    font-size: 1.2rem;
-    line-height: 1.7;
-    color: #555;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #555;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .info-list {
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 20px;
-    color: #555;
-    line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  color: #555;
+  line-height: 1.6;
 }
 
 .info-list li {
-    margin-bottom: 12px;
-    list-style-type: disc;
+  margin-bottom: 12px;
+  list-style-type: disc;
 }
 
 .features-section {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .feature-card {
-    border: none;
-    border-radius: 12px;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: none;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .app-placeholder {
-    width: 100%;
-    max-width: 350px;
-    height: 500px;
-    margin: 0 auto;
-    background-color: #e0e0e0;
-    border-radius: 20px;
-    color: #777;
-    font-weight: 500;
+  width: 100%;
+  max-width: 350px;
+  height: 500px;
+  margin: 0 auto;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  color: #777;
+  font-weight: 500;
 }
 
 .dev-section {
-    background-color: #4cc45e;
-    border-top: 2px solid #e0e0e0;
+  background-color: #4cc45e;
+  border-top: 2px solid #e0e0e0;
 }
 
 .dev-btn {
-    padding: 12px 20px;
-    border-radius: 10px;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    transition: all 0.25s ease;
-    font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  transition: all 0.25s ease;
+  font-weight: 500;
 }
 
 .dev-btn:hover {
-    background: #4f46e5;
-    color: #fff;
-    border-color: #4f46e5;
-    transform: translateY(-2px);
+  background: #4f46e5;
+  color: #fff;
+  border-color: #4f46e5;
+  transform: translateY(-2px);
 }
-

@@ -70,31 +70,55 @@
       <div class="card register-card shadow-sm border-0">
         <div class="card-body p-4 text-center">
           <h3 class="register-title mb-4">Sign Up</h3>
-          <form class="text-start">
+          <form class="text-start" novalidate id="register-form">
             <div class="mb-3">
               <label class="form-label fw-bold">Username</label>
               <input
                 type="text"
                 class="form-control register-input"
+                name="username"
                 placeholder="Choose a username"
+                required
               />
+              <div class="invalid-feedback">Username may only contain letters, numbers, and the characters ., -, _</div>
             </div>
+            
             <div class="mb-3">
               <label class="form-label fw-bold">Email Address</label>
               <input
                 type="email"
                 class="form-control register-input"
+                name="email"
                 placeholder="name@example.com"
+                required
               />
+              <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
+            
             <div class="mb-3">
               <label class="form-label fw-bold">Password</label>
               <input
                 type="password"
                 class="form-control register-input"
+                name="password"
                 placeholder="Create a password"
+                required
               />
+              <div class="invalid-feedback">Password needs to have at least 8 characters.</div>
             </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control register-input"
+                name="confirm_password"
+                placeholder="Repeat password"
+                required
+              />
+              <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+            
             <button type="submit" class="btn btn-register-submit w-100 mt-2">
               Sign Up
             </button>

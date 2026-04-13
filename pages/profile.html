@@ -71,11 +71,13 @@
           />
         </div>
 
-        <form id="profile-form">
+        <form id="profile-form" class="text-start text-input">
           <div class="mb-3 text-start">
             <label class="form-label fw-bold">Username</label>
             <input
               type="text"
+              id="username"
+              name="username"
               class="form-control register-input"
               placeholder="name"
             />
@@ -84,16 +86,14 @@
             <label class="form-label fw-bold">Email</label>
             <input
               type="email"
+              id="email"
+              name="email"
               class="form-control register-input"
               placeholder="email.example@hotmail.com"
             />
           </div>
 
-          <button
-            type="button"
-            class="btn btn-register-submit w-100 mb-4"
-            onclick="alert('Demo: Profile changes updated!')"
-          >
+          <button type="submit" class="btn btn-register-submit w-100 mb-4">
             Save Changes
           </button>
         </form>

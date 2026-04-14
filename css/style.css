@@ -262,3 +262,120 @@ body {
   border-color: #4f46e5;
   transform: translateY(-2px);
 }
+
+/* =========================
+   Apartment Page Styles
+   ========================= */
+
+.apartment-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Header (Title + Edit Button) */
+.apartment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.apartment-title {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.apartment-edit-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.apartment-edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Details Section */
+.apartment-details {
+    margin-top: 25px;
+}
+
+.apartment-form-group {
+    margin-bottom: 18px;
+}
+
+.apartment-form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.apartment-form-group input,
+.apartment-form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: border 0.2s ease;
+}
+
+.apartment-form-group input:focus,
+.apartment-form-group select:focus {
+    outline: none;
+    border-color: #00b09b;
+}
+
+/* Roommates Section */
+.apartment-roommates {
+    margin-top: 35px;
+}
+
+.apartment-roommates h2 {
+    margin-bottom: 12px;
+}
+
+/* Scrollable list */
+.roommate-list {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fafafa;
+}
+
+/* Single roommate */
+.roommate-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.roommate-item:hover {
+    background: #f0f0f0;
+}
+
+/* Avatar placeholder */
+.roommate-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dcdcdc;
+    margin-right: 12px;
+}
+
+/* Name */
+.roommate-name {
+    font-weight: 500;
+}

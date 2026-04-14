@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - GroShare</title>
+    <title>Register - GroShare</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,7 +16,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark navbar-groshare sticky-top">
@@ -39,21 +39,21 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="index.html">Home</a>
+              <a class="nav-link" href="../index.html">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="pages/profile.html">Profile</a>
+              <a class="nav-link" href="apartment.html">Apartment</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="login.html">Login</a>
+              <a class="nav-link" href="profile.html">Profile</a>
             </li>
-
             <li class="nav-item">
-              <a class="nav-link" href="pages/profile.html">Profile</a>
+              <a class="nav-link" href="login.html">Login</a>
             </li>
-
             <li class="nav-item">
-              <a class="nav-link btn-register ms-lg-3" href="register.html"
+              <a
+                class="nav-link btn-register active ms-lg-3"
+                href="register.html"
                 >Register</a
               >
             </li>
@@ -67,45 +67,76 @@
     >
       <div class="card register-card shadow-sm border-0">
         <div class="card-body p-4 text-center">
-          <h3 class="register-title mb-4">Login</h3>
-          <form class="text-start" novalidate id="login-form">
+          <h3 class="register-title mb-4">Sign Up</h3>
+          <form class="text-start" novalidate id="register-form">
             <div class="mb-3">
               <label class="form-label fw-bold">Username</label>
               <input
                 type="text"
                 class="form-control register-input"
                 name="username"
-                placeholder="Enter username"
+                placeholder="Choose a username"
                 required
               />
-              <div class="invalid-feedback">Username may only contain letters, numbers, and the characters ., -, _</div>
+              <div class="invalid-feedback">
+                Username may only contain letters, numbers, and the characters
+                ., -, _
+              </div>
             </div>
-            
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email Address</label>
+              <input
+                type="email"
+                class="form-control register-input"
+                name="email"
+                placeholder="name@example.com"
+                required
+              />
+              <div class="invalid-feedback">
+                Please enter a valid email address.
+              </div>
+            </div>
+
             <div class="mb-3">
               <label class="form-label fw-bold">Password</label>
               <input
                 type="password"
                 class="form-control register-input"
                 name="password"
-                placeholder="Enter password"
+                placeholder="Create a password"
                 required
               />
-              <div class="invalid-feedback">Password needs to have at least 8 characters.</div>
+              <div class="invalid-feedback">
+                Password needs to have at least 8 characters.
+              </div>
             </div>
-            
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control register-input"
+                name="confirm_password"
+                placeholder="Repeat password"
+                required
+              />
+              <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+
             <button type="submit" class="btn btn-register-submit w-100 mt-2">
-              Sign In
+              Sign Up
             </button>
           </form>
           <div class="mt-4">
-            <p class="mb-1 text-muted small">Don't have an account?</p>
-            <a href="register.html" class="login-link">Sign Up</a>
+            <p class="mb-1 text-muted small">Already have an account?</p>
+            <a href="login.html" class="login-link">Sign In</a>
           </div>
         </div>
       </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="/js/app.js"></script>
   </body>
 </html>

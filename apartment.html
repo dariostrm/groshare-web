@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroShare - Smart Grocery Sharing</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+ <nav class="navbar navbar-expand-lg navbar-dark navbar-groshare sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <span class="groshare-text">GroShare</span>
+                <span class="groshare-annotation ms-1 d-flex align-items-center">
+                    <i class="fas fa-pencil-alt me-1 fs-5"></i>
+                    <span class="groshare-underline"></span>
+                    <i class="fas fa-check fs-5 text-white"></i>
+                </span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="apartment.html">Apartment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-register ms-lg-3" href="register.html">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+  <div class="container apartment-container">
+
+  <!-- Header -->
+  <div class="apartment-header mb-4">
+    <h1 class="apartment-title">Apartment Name</h1>
+    <button class="apartment-edit-btn">Edit</button>
+  </div>
+
+  <!-- Grid Row -->
+  <div class="row">
+
+    <!-- LEFT: Details -->
+    <div class="col-lg-6 col-12">
+      <div class="apartment-details">
+
+        <div class="apartment-form-group">
+          <label>Address</label>
+          <input type="text" value="123 Main Street">
+        </div>
+
+        <div class="apartment-form-group">
+          <label>City</label>
+          <select>
+            <option>Vienna</option>
+            <option>Berlin</option>
+            <option>Munich</option>
+          </select>
+        </div>
+
+        <div class="apartment-form-group">
+          <label>Roommates Count</label>
+          <p>3</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Roommates -->
+    <div class="col-lg-6 col-12">
+      <div class="apartment-roommates">
+
+        <h2>Roommates</h2>
+
+        <div class="roommate-list">
+          <div class="roommate-item">
+            <div class="roommate-avatar"></div>
+            <span class="roommate-name">Max Mustermann</span>
+          </div>
+
+          <div class="roommate-item">
+            <div class="roommate-avatar"></div>
+            <span class="roommate-name">Anna Schmidt</span>
+          </div>
+
+          <div class="roommate-item">
+            <div class="roommate-avatar"></div>
+            <span class="roommate-name">John Doe</span>
+          </div>
+
+          <div class="roommate-item">
+            <div class="roommate-avatar"></div>
+            <span class="roommate-name">Jane Doe</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

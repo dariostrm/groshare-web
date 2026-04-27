@@ -1,1 +1,1 @@
-console.log("Main script loaded");
+import "./navbar.js";

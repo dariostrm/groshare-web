@@ -1,5 +1,5 @@
-import { getAuthToken, isLoggedIn } from "../auth";
-import { validateForm } from "../validation";
+import { getAuthToken, isLoggedIn } from "../auth.js";
+import { validateForm } from "../validation.js";
 
 const ui = {
   usernameInput: document.getElementById("username") as HTMLInputElement,

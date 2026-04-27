@@ -15,11 +15,12 @@ window.addEventListener("load", async function () {
 
     try {
       // Sending GET request to fetch user profile details
-      const response = await fetch("http://localhost:8000/api/v1/profile", {
+      const response = await fetch("https://groshare.dariostrm.dev/api/v1/profile", {
         method: "GET",
         headers: {
-          token: token, // Authentication token from localStorage
+          "Authorization": `Bearer ${token}`, // Authentication token from localStorage
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
       });
 
@@ -119,10 +120,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
           // Sending PUT request to update user profile
-          const response = await fetch("http://localhost:8000/api/v1/profile", {
+          const response = await fetch("https://groshare.dariostrm.dev/api/v1/profile", {
             method: "PUT",
             headers: {
-              token: token,
+              "Authorization": `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify(updatedData),

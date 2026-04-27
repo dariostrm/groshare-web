@@ -1,4 +1,4 @@
-import { isLoggedIn } from "./auth.js";
+import { isLoggedIn, logout } from "./auth.js";
 
 // Determine if we're on a page in the pages/ directory
 const isInPagesDirectory = (): boolean => {
@@ -60,7 +60,7 @@ const generateNavbar = (): string => {
            href="${pathPrefix}profile.html">Profile</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link ms-lg-3" href="#" onclick="logout(event)">Logout</a>
+        <a class="nav-link ms-lg-3" href="#" onclick="onLogout(event)">Logout</a>
       </li>
     `;
   } else {
@@ -90,6 +90,11 @@ const initNavbar = (): void => {
       navList.innerHTML = generateNavbar();
     }
   }
+};
+
+(window as any).onLogout = (event: Event): void => {
+  event.preventDefault();
+  logout();
 };
 
 // Initialize when DOM is ready

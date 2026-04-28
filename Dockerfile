@@ -20,8 +20,11 @@ RUN tsc
 # ==========================================
 FROM nginx:alpine
 
-# Copy the ENTIRE /app directory from the builder stage into Nginx.
-# This keeps your exact folder structure intact (pages/, dist/, index.html, etc.)
-COPY --from=builder /app /usr/share/nginx/html
+# Copy only the runtime assets needed by the static site into Nginx.
+# This preserves the served folder structure without including build-time artifacts.
+COPY --from=builder /app/index.html /usr/share/nginx/html/index.html
+COPY --from=builder /app/css /usr/share/nginx/html/css
+COPY --from=builder /app/pages /usr/share/nginx/html/pages
+COPY --from=builder /app/dist /usr/share/nginx/html/dist
 
 EXPOSE 80

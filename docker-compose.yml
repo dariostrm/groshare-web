@@ -1,0 +1,9 @@
+services:
+  frontend-website:
+    build: .
+    networks:
+      - groshare_network
+
+networks:
+  groshare_network:
+    external: true

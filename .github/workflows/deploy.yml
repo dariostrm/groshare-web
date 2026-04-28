@@ -1,0 +1,23 @@
+name: GroShare Frontend
+
+# This tells GitHub to run this script whenever you push to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    # "self-hosted" tells GitHub to run this ON YOUR LINUX PC, not in the cloud!
+    runs-on: self-hosted 
+
+    steps:
+      # Step 1: Download the latest code to your Linux PC
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Tell Docker to rebuild the image and restart the containers
+      - name: Build and Restart Docker Containers
+        run: |
+          # This command rebuilds the Ktor image using the Dockerfile
+          # and restarts the container in the background (-d)
+          docker compose up -d --build

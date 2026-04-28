@@ -5,8 +5,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install TypeScript globally inside this build container
-RUN npm install -g typescript
+# Install a pinned TypeScript version globally inside this build container
+RUN npm install -g typescript@5.6.3
 
 # Copy your ENTIRE project (HTML, CSS, TS, pages folders) into /app
 COPY . .

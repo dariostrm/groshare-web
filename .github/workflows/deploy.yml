@@ -18,6 +18,6 @@ jobs:
       # Step 2: Tell Docker to rebuild the image and restart the containers
       - name: Build and Restart Docker Containers
         run: |
-          # This command rebuilds the Ktor image using the Dockerfile
-          # and restarts the container in the background (-d)
+          # This command rebuilds the Docker Compose services using the Dockerfile(s)
+          # and restarts the containers in the background (-d)
           docker compose up -d --build

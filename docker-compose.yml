@@ -1,5 +1,6 @@
 services:
   frontend-website:
+    restart: unless-stopped
     build: .
     networks:
       - groshare_network

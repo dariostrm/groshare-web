@@ -1,0 +1,433 @@
+openapi: "3.1.0"
+info:
+  title: "GroShare API"
+  description: "GroShare API"
+  version: "1.0.0"
+servers:
+  - url: "https://groshare.dariostrm.dev"
+  - url: "http://localhost:8080"
+security:
+  - bearerAuth: [ ]
+paths:
+  /api/v1:
+    get:
+      security: [ ]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Hello World!"
+  /api/v1/login:
+    post:
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+  /api/v1/logout:
+    post:
+      responses:
+        "204":
+          description: "No Content"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/profile:
+    get:
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetProfileResponse"
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditProfileRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "204":
+          description: "No Content"
+  /api/v1/profile/apartment:
+    delete:
+      responses:
+        "204":
+          description: "No Content"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/signup:
+    post:
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpResponse"
+  /api/v1/apartment:
+    get:
+      responses:
+        "404":
+          description: "Not Found"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetApartmentResponse"
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApartmentRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateApartmentResponse"
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditApartmentRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "204":
+          description: "No Content"
+  /api/v1/apartment/invites:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendInviteRequest"
+        required: true
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "204":
+          description: "No Content"
+  /api/v1/invites:
+    get:
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetInvitesResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/invites/{inviteId}/accept:
+    post:
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: "No Content"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/invites/{inviteId}:
+    delete:
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: "No Content"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "UUID"
+  responses:
+    BadRequest:
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: "Conflict"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+      required:
+        - "error"
+    GetInvitesResponse:
+      type: "object"
+      properties:
+        invites:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Invite"
+      required:
+        - "invites"
+    Invite:
+      type: "object"
+      properties:
+        inviteId:
+          type: "integer"
+          format: "int64"
+        inviterName:
+          type: "string"
+        apartmentName:
+          type: "string"
+        sentAtInEpochSeconds:
+          type: "integer"
+          format: "int64"
+      required:
+        - "inviteId"
+        - "inviterName"
+        - "apartmentName"
+        - "sentAtInEpochSeconds"
+    SendInviteRequest:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+      required:
+        - "username"
+    LoginRequest:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        password:
+          type: "string"
+      required:
+        - "username"
+        - "password"
+    LoginResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+      required:
+        - "token"
+    GetProfileResponse:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        email:
+          type: "string"
+        apartmentName:
+          type: "string"
+          nullable: true
+      required:
+        - "username"
+        - "email"
+    EditProfileRequest:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        email:
+          type: "string"
+      required:
+        - "username"
+        - "email"
+    SignUpRequest:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        email:
+          type: "string"
+        password:
+          type: "string"
+      required:
+        - "username"
+        - "email"
+        - "password"
+    SignUpResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+      required:
+        - "token"
+    GetApartmentResponse:
+      type: "object"
+      properties:
+        apartmentId:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        address:
+          type: "string"
+        city:
+          type: "string"
+        roommates:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Roommate"
+      required:
+        - "apartmentId"
+        - "name"
+        - "address"
+        - "city"
+        - "roommates"
+    Roommate:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        username:
+          type: "string"
+      required:
+        - "id"
+        - "username"
+    CreateApartmentRequest:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        address:
+          type: "string"
+        city:
+          type: "string"
+      required:
+        - "name"
+        - "address"
+        - "city"
+    CreateApartmentResponse:
+      type: "object"
+      properties:
+        apartmentId:
+          type: "integer"
+          format: "int64"
+      required:
+        - "apartmentId"
+    EditApartmentRequest:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        address:
+          type: "string"
+        city:
+          type: "string"
+      required:
+        - "name"
+        - "address"
+        - "city"

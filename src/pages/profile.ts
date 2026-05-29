@@ -5,6 +5,60 @@ const ui = {
   usernameInput: document.getElementById("username") as HTMLInputElement,
   emailInput: document.getElementById("email") as HTMLInputElement,
   form: document.getElementById("profile-form") as HTMLFormElement,
+  currentApartmentName: document.getElementById(
+    "current-apartment-name",
+  ) as HTMLElement,
+  leaveApartmentButton: document.getElementById(
+    "leave-apartment-button",
+  ) as HTMLButtonElement,
+};
+
+const apiBaseUrl = "https://groshare.dariostrm.dev/api/v1";
+
+const setApartmentState = (apartmentName: string | null): void => {
+  if (ui.currentApartmentName) {
+    ui.currentApartmentName.textContent =
+      apartmentName || "No apartment assigned";
+  }
+
+  if (ui.leaveApartmentButton) {
+    ui.leaveApartmentButton.classList.toggle("d-none", apartmentName === null);
+  }
+};
+
+const leaveApartment = async (): Promise<void> => {
+  try {
+    const response = await fetch(`${apiBaseUrl}/profile/apartment`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      let errorMessage = "Could not leave apartment. Please try again.";
+
+      try {
+        const errorData = (await response.json()) as { error?: string };
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        errorMessage = response.statusText || errorMessage;
+      }
+
+      alert(errorMessage);
+      return;
+    }
+
+    setApartmentState(null);
+    alert("You left the apartment.");
+  } catch (error) {
+    console.error("Error leaving apartment:", error);
+    alert("Server connection error.");
+  }
 };
 
 //Populate the user details from the backend when the page loads
@@ -34,6 +88,7 @@ window.addEventListener("load", async function () {
         // Populate inputs with data received from the backend
         ui.usernameInput.value = data.username;
         ui.emailInput.value = data.email;
+        setApartmentState(data.apartmentName ?? null);
       } else {
         // If profile fetch fails, notify user and redirect to login/home
         alert("Could not load profile! Redirecting to home page.");
@@ -43,6 +98,10 @@ window.addEventListener("load", async function () {
       console.error("Fetch error during profile load:", error);
     }
   }
+});
+
+ui.leaveApartmentButton?.addEventListener("click", async () => {
+  await leaveApartment();
 });
 
 ui.form.addEventListener("submit", async (event) => {

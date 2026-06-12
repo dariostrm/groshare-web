@@ -1,3 +1,4 @@
+import { api } from "../api.js";
 import { getAuthToken, isLoggedIn } from "../auth.js";
 import { validateForm } from "../validation.js";
 
@@ -13,7 +14,6 @@ const ui = {
   ) as HTMLButtonElement,
 };
 
-const apiBaseUrl = "https://groshare.dariostrm.dev/api/v1";
 
 const setApartmentState = (apartmentName: string | null): void => {
   if (ui.currentApartmentName) {
@@ -28,7 +28,7 @@ const setApartmentState = (apartmentName: string | null): void => {
 
 const leaveApartment = async (): Promise<void> => {
   try {
-    const response = await fetch(`${apiBaseUrl}/profile/apartment`, {
+    const response = await fetch(api("profile/apartment"), {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${getAuthToken()}`,
@@ -71,8 +71,7 @@ window.addEventListener("load", async function () {
   if (ui.usernameInput && ui.emailInput) {
     try {
       // Sending GET request to fetch user profile details
-      const response = await fetch(
-        "https://groshare.dariostrm.dev/api/v1/profile",
+        const response = await fetch(api("profile"),
         {
           method: "GET",
           headers: {
@@ -118,8 +117,7 @@ ui.form.addEventListener("submit", async (event) => {
 
   try {
     // Sending PUT request to update user profile
-    const response = await fetch(
-      "https://groshare.dariostrm.dev/api/v1/profile",
+    const response = await fetch(api("profile"),
       {
         method: "PUT",
         headers: {

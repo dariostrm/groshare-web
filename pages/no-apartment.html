@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No Apartment - GroShare</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-groshare sticky-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="../index.html">
+          <span class="groshare-text">GroShare</span>
+          <span class="groshare-annotation ms-1 d-flex align-items-center">
+            <i class="fas fa-pencil-alt me-1 fs-5"></i>
+            <i class="fas fa-check fs-5 text-white"></i>
+          </span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto"></ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4 py-lg-5">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center">
+              <p class="text-uppercase text-secondary fw-semibold small mb-2">
+                Apartment setup
+              </p>
+              <h1 class="register-title mb-3">
+                You&apos;re not in an apartment, create one.
+              </h1>
+              <p class="text-muted mb-4 fs-5">
+                Create one to start inviting roommates and managing your shared
+                apartment.
+              </p>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="create-apartment.html" class="btn btn-register-submit px-4">
+                  Create apartment
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4 p-lg-5">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <p class="text-uppercase text-secondary fw-semibold small mb-1">
+                    Invites
+                  </p>
+                  <h2 class="h4 mb-0">Pending apartment invites</h2>
+                </div>
+              </div>
+
+              <div
+                id="no-apartment-message"
+                class="alert alert-danger d-none"
+                role="alert"
+              ></div>
+
+              <div id="no-apartment-invites" class="d-grid gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/dist/main.js"></script>
+    <script type="module" src="/dist/pages/no-apartment.js"></script>
+  </body>
+</html>

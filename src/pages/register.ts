@@ -1,3 +1,4 @@
+import { api } from "../api.js";
 import { setAuthToken, isLoggedIn } from "../auth.js";
 import { validateForm } from "../validation.js";
 
@@ -50,8 +51,7 @@ ui.form?.addEventListener("submit", async (event) => {
 
   try {
     // Sending POST request to signup
-    const response = await fetch(
-      "https://groshare.dariostrm.dev/api/v1/signup",
+    const response = await fetch(api("signup"),
       {
         method: "POST",
         headers: {

@@ -1,3 +1,4 @@
+import { api } from "../api.js";
 import { getAuthToken, isLoggedIn } from "../auth.js";
 
 type ApartmentRoommate = {
@@ -46,7 +47,6 @@ const ui = {
   ) as HTMLButtonElement | null,
 };
 
-const apiBaseUrl = "https://groshare.dariostrm.dev/api/v1";
 
 let apartmentDetails: ApartmentDetails | null = null;
 let isEditing = false;
@@ -162,7 +162,7 @@ const loadApartment = async (): Promise<void> => {
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/apartment`, {
+    const response = await fetch(api("apartment"), {
       method: "GET",
       headers: getHeaders(),
     });
@@ -174,12 +174,7 @@ const loadApartment = async (): Promise<void> => {
     }
 
     if (response.status === 404) {
-      apartmentDetails = null;
-      setTextContent(ui.nameDisplay, "No apartment assigned");
-      setTextContent(ui.addressDisplay, "-");
-      setTextContent(ui.cityDisplay, "-");
-      setTextContent(ui.roommatesCount, "0");
-      renderRoommates([]);
+      window.location.href = "no-apartment.html";
       return;
     }
 
@@ -208,7 +203,7 @@ const saveApartment = async (): Promise<void> => {
   };
 
   try {
-    const response = await fetch(`${apiBaseUrl}/apartment`, {
+    const response = await fetch(api("apartment"), {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify(updatedApartment),

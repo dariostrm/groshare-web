@@ -36,6 +36,15 @@ const ui = {
   roommatesCount: document.getElementById(
     "apartment-roommates-count",
   ) as HTMLParagraphElement | null,
+  inviteUsernameInput: document.getElementById(
+    "apartment-invite-username",
+  ) as HTMLInputElement | null,
+  inviteButton: document.getElementById(
+    "apartment-invite-button",
+  ) as HTMLButtonElement | null,
+  inviteMessage: document.getElementById(
+    "apartment-invite-message",
+  ) as HTMLDivElement | null,
   roommatesList: document.getElementById(
     "apartment-roommates-list",
   ) as HTMLDivElement | null,
@@ -47,12 +56,31 @@ const ui = {
   ) as HTMLButtonElement | null,
 };
 
-
 let apartmentDetails: ApartmentDetails | null = null;
 let isEditing = false;
 
 const redirectToLogin = (): void => {
   window.location.href = "login.html";
+};
+
+const showInviteMessage = (message: string, isError = true): void => {
+  if (!ui.inviteMessage) {
+    return;
+  }
+
+  ui.inviteMessage.textContent = message;
+  ui.inviteMessage.classList.remove("d-none", "alert-danger", "alert-success");
+  ui.inviteMessage.classList.add(isError ? "alert-danger" : "alert-success");
+};
+
+const clearInviteMessage = (): void => {
+  if (!ui.inviteMessage) {
+    return;
+  }
+
+  ui.inviteMessage.textContent = "";
+  ui.inviteMessage.classList.add("d-none");
+  ui.inviteMessage.classList.remove("alert-danger", "alert-success");
 };
 
 const getHeaders = (): HeadersInit => ({
@@ -237,8 +265,53 @@ const saveApartment = async (): Promise<void> => {
   }
 };
 
+const sendInvite = async (): Promise<void> => {
+  if (!ui.inviteUsernameInput) {
+    return;
+  }
+
+  const username = ui.inviteUsernameInput.value.trim();
+
+  if (!username) {
+    showInviteMessage("Please enter a username.");
+    return;
+  }
+
+  clearInviteMessage();
+
+  try {
+    const response = await fetch(api("apartment/invites"), {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ username }),
+    });
+
+    if (response.ok) {
+      ui.inviteUsernameInput.value = "";
+      showInviteMessage("Invite sent successfully.", false);
+      return;
+    }
+
+    let errorMessage = "Failed to send invite.";
+
+    try {
+      const errorData = (await response.json()) as { error?: string };
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      errorMessage = response.statusText || errorMessage;
+    }
+
+    showInviteMessage(errorMessage);
+  } catch (error) {
+    console.error("Error sending invite:", error);
+    showInviteMessage("Server connection error while sending invite.");
+  }
+};
+
 window.addEventListener("load", async () => {
-  if (!ui.editButton || !ui.saveButton) {
+  if (!ui.editButton || !ui.saveButton || !ui.inviteButton) {
     return;
   }
 
@@ -248,6 +321,10 @@ window.addEventListener("load", async () => {
 
   ui.saveButton.addEventListener("click", async () => {
     await saveApartment();
+  });
+
+  ui.inviteButton.addEventListener("click", async () => {
+    await sendInvite();
   });
 
   await loadApartment();

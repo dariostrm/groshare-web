@@ -1,3 +1,4 @@
+import { api } from "../api.js";
 import { getAuthToken, isLoggedIn } from "../auth.js";
 
 type Grocery = {
@@ -19,20 +20,12 @@ const ui = {
   ) as HTMLInputElement | null,
 };
 
-const groceries: Grocery[] = [
-  { id: 1, name: "Milk", addedByUsername: "alex" },
-  { id: 2, name: "Pasta", addedByUsername: "maria" },
-  { id: 3, name: "Eggs", addedByUsername: "sam" },
-  { id: 4, name: "Apples", addedByUsername: "jordan" },
-  { id: 5, name: "Tomatoes", addedByUsername: "alex" },
-  { id: 6, name: "Cereal", addedByUsername: "maria" },
-  { id: 7, name: "Bread", addedByUsername: "dario" },
-  { id: 8, name: "Test", addedByUsername: "_idk_Man" },
-  { id: 9, name: "Cereal", addedByUsername: ".whatever." },
-];
-
 const redirectToLogin = (): void => {
   window.location.href = "login.html";
+};
+
+const redirectToNoApartment = (): void => {
+  window.location.href = "no-apartment.html";
 };
 
 const fnv1a = (value: string): number => {
@@ -83,6 +76,144 @@ const createAvatar = (username: string): HTMLDivElement => {
   return avatar;
 };
 
+const getHeaders = (): HeadersInit => ({
+  Authorization: `Bearer ${getAuthToken()}`,
+  "Content-Type": "application/json",
+  Accept: "application/json",
+});
+
+const showAlert = (message: string): void => {
+  window.alert(message);
+};
+
+const readErrorMessage = async (
+  response: Response,
+  fallback: string,
+): Promise<string> => {
+  try {
+    const errorData = (await response.json()) as { error?: string };
+    return errorData.error || response.statusText || fallback;
+  } catch {
+    return response.statusText || fallback;
+  }
+};
+
+const loadApartment = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(api("apartment"), {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (response.status === 404) {
+      redirectToNoApartment();
+      return false;
+    }
+
+    if (response.status === 401) {
+      showAlert("Your session expired. Please log in again.");
+      redirectToLogin();
+      return false;
+    }
+
+    if (!response.ok) {
+      showAlert(
+        await readErrorMessage(
+          response,
+          "Could not confirm apartment membership.",
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error checking apartment status:", error);
+    showAlert("Server connection error while checking apartment membership.");
+    return false;
+  }
+};
+
+const loadGroceries = async (): Promise<void> => {
+  if (!ui.list || !ui.emptyState) {
+    return;
+  }
+
+  ui.list.innerHTML = "";
+
+  try {
+    const response = await fetch(api("apartment/groceries"), {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (response.status === 401) {
+      showAlert(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      showAlert(await readErrorMessage(response, "Could not load groceries."));
+      return;
+    }
+
+    const groceries = (await response.json()) as Grocery[];
+
+    if (groceries.length === 0) {
+      renderEmptyState();
+      return;
+    }
+
+    ui.emptyState.classList.add("d-none");
+
+    groceries.forEach((grocery) => {
+      const item = document.createElement("div");
+      item.className = "grocery-item";
+
+      const content = document.createElement("div");
+      content.className = "d-flex align-items-center gap-3 flex-grow-1 min-w-0";
+
+      const avatar = createAvatar(grocery.addedByUsername);
+
+      const meta = document.createElement("div");
+      meta.className = "grocery-meta min-w-0";
+
+      const name = document.createElement("div");
+      name.className = "grocery-name text-truncate";
+      name.textContent = grocery.name;
+
+      const addedBy = document.createElement("div");
+      addedBy.className = "grocery-added-by text-muted text-truncate";
+      addedBy.textContent = `Added by ${grocery.addedByUsername}`;
+
+      meta.append(name, addedBy);
+      content.append(avatar, meta);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "btn btn-outline-danger btn-sm flex-shrink-0";
+      deleteButton.textContent = "Delete";
+      deleteButton.setAttribute("aria-label", `Delete grocery ${grocery.name}`);
+
+      deleteButton.addEventListener("click", async () => {
+        await deleteGrocery(grocery.id);
+      });
+
+      item.append(content, deleteButton);
+      ui.list?.appendChild(item);
+    });
+  } catch (error) {
+    console.error("Error loading groceries:", error);
+    showAlert("Server connection error while loading groceries.");
+  }
+};
+
 const renderEmptyState = (): void => {
   if (!ui.emptyState || !ui.list) {
     return;
@@ -92,71 +223,106 @@ const renderEmptyState = (): void => {
   ui.emptyState.classList.remove("d-none");
 };
 
-const renderGroceries = (): void => {
-  if (!ui.list || !ui.emptyState) {
+const addGrocery = async (): Promise<void> => {
+  if (!ui.nameInput) {
     return;
   }
 
-  ui.list.innerHTML = "";
+  const name = ui.nameInput.value.trim();
 
-  if (groceries.length === 0) {
-    renderEmptyState();
+  if (name.length === 0) {
+    showAlert("Please enter a grocery name.");
     return;
   }
 
-  ui.emptyState.classList.add("d-none");
+  try {
+    const response = await fetch(api("apartment/groceries"), {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ name }),
+    });
 
-  groceries.forEach((grocery) => {
-    const item = document.createElement("div");
-    item.className = "grocery-item";
+    if (response.status === 401) {
+      showAlert(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
+      redirectToLogin();
+      return;
+    }
 
-    const content = document.createElement("div");
-    content.className = "d-flex align-items-center gap-3 flex-grow-1 min-w-0";
+    if (!response.ok) {
+      showAlert(await readErrorMessage(response, "Could not add grocery."));
+      return;
+    }
 
-    const avatar = createAvatar(grocery.addedByUsername);
+    ui.nameInput.value = "";
+    await loadGroceries();
+  } catch (error) {
+    console.error("Error adding grocery:", error);
+    showAlert("Server connection error while adding grocery.");
+  }
+};
 
-    const meta = document.createElement("div");
-    meta.className = "grocery-meta min-w-0";
+const deleteGrocery = async (groceryId: number): Promise<void> => {
+  try {
+    const response = await fetch(api(`apartment/groceries/${groceryId}`), {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
 
-    const name = document.createElement("div");
-    name.className = "grocery-name text-truncate";
-    name.textContent = grocery.name;
+    if (response.status === 401) {
+      showAlert(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
+      redirectToLogin();
+      return;
+    }
 
-    const addedBy = document.createElement("div");
-    addedBy.className = "grocery-added-by text-muted text-truncate";
-    addedBy.textContent = `Added by ${grocery.addedByUsername}`;
+    if (response.status !== 204 && !response.ok) {
+      showAlert(await readErrorMessage(response, "Could not delete grocery."));
+      return;
+    }
 
-    meta.append(name, addedBy);
-    content.append(avatar, meta);
-
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "btn btn-outline-danger btn-sm flex-shrink-0";
-    deleteButton.textContent = "Delete";
-    deleteButton.setAttribute("aria-label", `Delete grocery ${grocery.name}`);
-
-    item.append(content, deleteButton);
-    ui.list?.appendChild(item);
-  });
+    await loadGroceries();
+  } catch (error) {
+    console.error("Error deleting grocery:", error);
+    showAlert("Server connection error while deleting grocery.");
+  }
 };
 
 const initAddButton = (): void => {
-  ui.addButton?.addEventListener("click", () => {
-    if (ui.nameInput) {
-      ui.nameInput.value = "";
-      ui.nameInput.focus();
+  ui.addButton?.addEventListener("click", async () => {
+    await addGrocery();
+  });
+
+  ui.nameInput?.addEventListener("keydown", async (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      await addGrocery();
     }
   });
 };
 
-const initPage = (): void => {
+const initPage = async (): Promise<void> => {
   if (!isLoggedIn() || !getAuthToken()) {
     redirectToLogin();
     return;
   }
 
   initAddButton();
-  renderGroceries();
+
+  const isInApartment = await loadApartment();
+  if (!isInApartment) {
+    return;
+  }
+
+  await loadGroceries();
 };
 
 document.addEventListener("DOMContentLoaded", initPage);

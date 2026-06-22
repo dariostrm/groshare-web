@@ -21,6 +21,9 @@ const ui = {
   ) as HTMLDivElement | null,
 };
 
+const invitePollIntervalMs = 5000;
+let invitePollTimerId: number | null = null;
+
 const redirectToLogin = (): void => {
   window.location.href = "login.html";
 };
@@ -79,7 +82,8 @@ const renderInvites = (invites: Invite[]): void => {
     content.className = "d-flex gap-3 align-items-start";
 
     const avatar = document.createElement("div");
-    avatar.className = "roommate-avatar flex-shrink-0 d-flex align-items-center justify-content-center";
+    avatar.className =
+      "roommate-avatar flex-shrink-0 d-flex align-items-center justify-content-center";
     avatar.innerHTML = '<i class="fas fa-user text-secondary"></i>';
 
     const textWrapper = document.createElement("div");
@@ -102,13 +106,19 @@ const renderInvites = (invites: Invite[]): void => {
     acceptButton.type = "button";
     acceptButton.className = "btn btn-success btn-sm";
     acceptButton.innerHTML = '<i class="fas fa-check"></i>';
-    acceptButton.setAttribute("aria-label", `Accept invite for ${invite.apartmentName}`);
+    acceptButton.setAttribute(
+      "aria-label",
+      `Accept invite for ${invite.apartmentName}`,
+    );
 
     const declineButton = document.createElement("button");
     declineButton.type = "button";
     declineButton.className = "btn btn-outline-danger btn-sm";
     declineButton.innerHTML = '<i class="fas fa-times"></i>';
-    declineButton.setAttribute("aria-label", `Decline invite for ${invite.apartmentName}`);
+    declineButton.setAttribute(
+      "aria-label",
+      `Decline invite for ${invite.apartmentName}`,
+    );
 
     acceptButton.addEventListener("click", async () => {
       await handleAcceptInvite(invite.inviteId);
@@ -140,8 +150,12 @@ const fetchInvites = async (): Promise<void> => {
     });
 
     if (response.status === 401) {
-      const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
-      showMessage(errorData?.error || "Your session expired. Please log in again.");
+      const errorData = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      showMessage(
+        errorData?.error || "Your session expired. Please log in again.",
+      );
       redirectToLogin();
       return;
     }
@@ -161,7 +175,29 @@ const fetchInvites = async (): Promise<void> => {
   }
 };
 
-const readErrorMessage = async (response: Response, fallback: string): Promise<string> => {
+const startInvitePolling = (): void => {
+  if (invitePollTimerId !== null) {
+    window.clearInterval(invitePollTimerId);
+  }
+
+  invitePollTimerId = window.setInterval(() => {
+    void fetchInvites();
+  }, invitePollIntervalMs);
+};
+
+const stopInvitePolling = (): void => {
+  if (invitePollTimerId === null) {
+    return;
+  }
+
+  window.clearInterval(invitePollTimerId);
+  invitePollTimerId = null;
+};
+
+const readErrorMessage = async (
+  response: Response,
+  fallback: string,
+): Promise<string> => {
   try {
     const errorData = (await response.json()) as { error?: string };
     return errorData.error || response.statusText || fallback;
@@ -185,7 +221,12 @@ const handleAcceptInvite = async (inviteId: number): Promise<void> => {
     }
 
     if (response.status === 401) {
-      showMessage(await readErrorMessage(response, "Your session expired. Please log in again."));
+      showMessage(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
       redirectToLogin();
       return;
     }
@@ -212,7 +253,12 @@ const handleDeclineInvite = async (inviteId: number): Promise<void> => {
     }
 
     if (response.status === 401) {
-      showMessage(await readErrorMessage(response, "Your session expired. Please log in again."));
+      showMessage(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
       redirectToLogin();
       return;
     }
@@ -226,4 +272,9 @@ const handleDeclineInvite = async (inviteId: number): Promise<void> => {
 
 window.addEventListener("load", async () => {
   await fetchInvites();
+  startInvitePolling();
+});
+
+window.addEventListener("beforeunload", () => {
+  stopInvitePolling();
 });

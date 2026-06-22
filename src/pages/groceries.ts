@@ -7,6 +7,15 @@ type Grocery = {
   addedByUsername: string;
 };
 
+type PurchaseDraftItem = {
+  groceryId: number;
+  priceInCents: number;
+};
+
+type PurchaseDraft = {
+  purchases: PurchaseDraftItem[];
+};
+
 const ui = {
   list: document.getElementById("groceries-list") as HTMLDivElement | null,
   emptyState: document.getElementById(
@@ -18,7 +27,49 @@ const ui = {
   nameInput: document.getElementById(
     "groceries-name-input",
   ) as HTMLInputElement | null,
+  boughtButton: document.getElementById(
+    "groceries-bought-button",
+  ) as HTMLButtonElement | null,
+  buyModal: document.getElementById(
+    "groceries-buy-modal",
+  ) as HTMLDivElement | null,
+  buyModalLabel: document.getElementById(
+    "groceries-buy-modal-label",
+  ) as HTMLHeadingElement | null,
+  buyModalSelectedCount: document.getElementById(
+    "groceries-buy-selected-count",
+  ) as HTMLSpanElement | null,
+  buyModalTotalInput: document.getElementById(
+    "groceries-buy-total-input",
+  ) as HTMLInputElement | null,
+  buyModalItems: document.getElementById(
+    "groceries-buy-items",
+  ) as HTMLDivElement | null,
+  buyModalConfirm: document.getElementById(
+    "groceries-buy-confirm",
+  ) as HTMLButtonElement | null,
+  buyModalClose: document.getElementById(
+    "groceries-buy-close",
+  ) as HTMLButtonElement | null,
 };
+
+const bootstrapWindow = window as Window & {
+  bootstrap?: {
+    Modal: new (element: Element) => {
+      show(): void;
+      hide(): void;
+    };
+  };
+};
+
+const buyModal =
+  ui.buyModal && bootstrapWindow.bootstrap
+    ? new bootstrapWindow.bootstrap.Modal(ui.buyModal)
+    : null;
+
+let groceries: Grocery[] = [];
+const selectedGroceryIds = new Set<number>();
+let currentPurchaseDraft: PurchaseDraft | null = null;
 
 const redirectToLogin = (): void => {
   window.location.href = "login.html";
@@ -74,6 +125,93 @@ const createAvatar = (username: string): HTMLDivElement => {
 
   avatar.appendChild(letter);
   return avatar;
+};
+
+const formatCurrency = (valueInCents: number): string => {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "EUR",
+  }).format(valueInCents / 100);
+};
+
+const parseMoneyToCents = (value: string): number | null => {
+  const parsedValue = Number.parseFloat(value);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 0) {
+    return null;
+  }
+
+  return Math.round(parsedValue * 100);
+};
+
+const splitTotalAcrossItems = (
+  totalInCents: number,
+  itemCount: number,
+): number[] => {
+  if (itemCount <= 0) {
+    return [];
+  }
+
+  const baseAmount = Math.floor(totalInCents / itemCount);
+  let remainder = totalInCents % itemCount;
+
+  return Array.from({ length: itemCount }, () => {
+    const amount = baseAmount + (remainder > 0 ? 1 : 0);
+    remainder -= remainder > 0 ? 1 : 0;
+    return amount;
+  });
+};
+
+const getSelectedGroceries = (): Grocery[] => {
+  return groceries.filter((grocery) => selectedGroceryIds.has(grocery.id));
+};
+
+const updateBoughtButtonState = (): void => {
+  if (!ui.boughtButton) {
+    return;
+  }
+
+  ui.boughtButton.disabled = selectedGroceryIds.size === 0;
+};
+
+const syncSelectionCheckboxes = (): void => {
+  const checkboxes = document.querySelectorAll<HTMLInputElement>(
+    "[data-grocery-select-checkbox]",
+  );
+
+  checkboxes.forEach((checkbox) => {
+    const groceryId = Number.parseInt(checkbox.dataset.groceryId || "", 10);
+    checkbox.checked = selectedGroceryIds.has(groceryId);
+  });
+};
+
+const syncSelectAllState = (): void => {
+  const selectAllCheckbox = document.getElementById(
+    "groceries-select-all",
+  ) as HTMLInputElement | null;
+
+  if (!selectAllCheckbox) {
+    return;
+  }
+
+  const visibleGroceries = groceries.length;
+
+  if (visibleGroceries === 0) {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+    return;
+  }
+
+  const selectedCount = selectedGroceryIds.size;
+  selectAllCheckbox.checked = selectedCount === visibleGroceries;
+  selectAllCheckbox.indeterminate =
+    selectedCount > 0 && selectedCount < visibleGroceries;
+};
+
+const updateSelectionState = (): void => {
+  syncSelectionCheckboxes();
+  syncSelectAllState();
+  updateBoughtButtonState();
 };
 
 const getHeaders = (): HeadersInit => ({
@@ -163,9 +301,18 @@ const loadGroceries = async (): Promise<void> => {
       return;
     }
 
-    const groceries = (await response.json()) as Grocery[];
+    groceries = (await response.json()) as Grocery[];
+
+    const groceryIds = new Set(groceries.map((grocery) => grocery.id));
+    for (const selectedId of [...selectedGroceryIds]) {
+      if (!groceryIds.has(selectedId)) {
+        selectedGroceryIds.delete(selectedId);
+      }
+    }
 
     if (groceries.length === 0) {
+      selectedGroceryIds.clear();
+      updateBoughtButtonState();
       renderEmptyState();
       return;
     }
@@ -176,8 +323,31 @@ const loadGroceries = async (): Promise<void> => {
       const item = document.createElement("div");
       item.className = "grocery-item";
 
+      if (selectedGroceryIds.has(grocery.id)) {
+        item.classList.add("selected");
+      }
+
       const content = document.createElement("div");
       content.className = "d-flex align-items-center gap-3 flex-grow-1 min-w-0";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className =
+        "form-check-input grocery-select-checkbox flex-shrink-0";
+      checkbox.dataset.grocerySelectCheckbox = "true";
+      checkbox.dataset.groceryId = String(grocery.id);
+      checkbox.checked = selectedGroceryIds.has(grocery.id);
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          selectedGroceryIds.add(grocery.id);
+        } else {
+          selectedGroceryIds.delete(grocery.id);
+        }
+
+        item.classList.toggle("selected", checkbox.checked);
+        updateSelectionState();
+      });
 
       const avatar = createAvatar(grocery.addedByUsername);
 
@@ -193,7 +363,7 @@ const loadGroceries = async (): Promise<void> => {
       addedBy.textContent = `Added by ${grocery.addedByUsername}`;
 
       meta.append(name, addedBy);
-      content.append(avatar, meta);
+      content.append(checkbox, avatar, meta);
 
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
@@ -208,6 +378,8 @@ const loadGroceries = async (): Promise<void> => {
       item.append(content, deleteButton);
       ui.list?.appendChild(item);
     });
+
+    updateSelectionState();
   } catch (error) {
     console.error("Error loading groceries:", error);
     showAlert("Server connection error while loading groceries.");
@@ -221,6 +393,213 @@ const renderEmptyState = (): void => {
 
   ui.list.innerHTML = "";
   ui.emptyState.classList.remove("d-none");
+};
+
+const buildPurchaseDraft = (): PurchaseDraft | null => {
+  const selectedGroceries = getSelectedGroceries();
+
+  if (selectedGroceries.length === 0) {
+    return null;
+  }
+
+  if (!ui.buyModalTotalInput) {
+    return {
+      purchases: selectedGroceries.map((grocery) => ({
+        groceryId: grocery.id,
+        priceInCents: 0,
+      })),
+    };
+  }
+
+  const totalInCents = parseMoneyToCents(ui.buyModalTotalInput.value);
+
+  if (totalInCents === null) {
+    return {
+      purchases: selectedGroceries.map((grocery) => ({
+        groceryId: grocery.id,
+        priceInCents: 0,
+      })),
+    };
+  }
+
+  const splitPrices = splitTotalAcrossItems(
+    totalInCents,
+    selectedGroceries.length,
+  );
+
+  return {
+    purchases: selectedGroceries.map((grocery, index) => ({
+      groceryId: grocery.id,
+      priceInCents: splitPrices[index] ?? 0,
+    })),
+  };
+};
+
+const renderBuyModalItems = (): void => {
+  if (!ui.buyModalItems || !ui.buyModalSelectedCount) {
+    return;
+  }
+
+  const selectedGroceries = getSelectedGroceries();
+  ui.buyModalSelectedCount.textContent = String(selectedGroceries.length);
+  ui.buyModalItems.innerHTML = "";
+
+  if (selectedGroceries.length === 0) {
+    ui.buyModalItems.innerHTML = `
+      <div class="text-muted py-3">Select at least one grocery to prepare a purchase.</div>
+    `;
+    return;
+  }
+
+  selectedGroceries.forEach((grocery, index) => {
+    const draftAmount =
+      currentPurchaseDraft?.purchases.find(
+        (purchase) => purchase.groceryId === grocery.id,
+      )?.priceInCents ?? 0;
+
+    const row = document.createElement("div");
+    row.className = "grocery-buy-row";
+
+    row.innerHTML = `
+      <div class="flex-grow-1 min-w-0">
+        <div class="fw-semibold text-truncate">${grocery.name}</div>
+        <div class="text-muted small text-truncate">Added by ${grocery.addedByUsername}</div>
+      </div>
+      <div class="grocery-buy-price-group">
+        <label class="form-label small mb-1" for="grocery-buy-price-${grocery.id}">Price in cents</label>
+        <input
+          id="grocery-buy-price-${grocery.id}"
+          data-grocery-buy-price-input="true"
+          data-grocery-id="${grocery.id}"
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          value="${draftAmount}"
+        />
+      </div>
+    `;
+
+    const priceInput = row.querySelector<HTMLInputElement>(
+      '[data-grocery-buy-price-input="true"]',
+    );
+
+    priceInput?.addEventListener("input", () => {
+      currentPurchaseDraft = buildPurchaseDraftFromInputs();
+    });
+
+    ui.buyModalItems?.appendChild(row);
+  });
+
+  currentPurchaseDraft = buildPurchaseDraftFromInputs();
+};
+
+const buildPurchaseDraftFromInputs = (): PurchaseDraft | null => {
+  const selectedGroceries = getSelectedGroceries();
+
+  if (selectedGroceries.length === 0 || !ui.buyModalItems) {
+    return null;
+  }
+
+  const inputs = ui.buyModalItems.querySelectorAll<HTMLInputElement>(
+    '[data-grocery-buy-price-input="true"]',
+  );
+
+  const purchases: PurchaseDraftItem[] = [];
+
+  inputs.forEach((input) => {
+    const groceryId = Number.parseInt(input.dataset.groceryId || "", 10);
+    const priceInCents = Number.parseInt(input.value, 10);
+
+    if (!Number.isNaN(groceryId) && Number.isFinite(priceInCents)) {
+      purchases.push({
+        groceryId,
+        priceInCents: Math.max(0, priceInCents),
+      });
+    }
+  });
+
+  return { purchases };
+};
+
+const syncPurchasePricesFromTotal = (): void => {
+  if (!ui.buyModalItems || !ui.buyModalTotalInput) {
+    return;
+  }
+
+  const selectedGroceries = getSelectedGroceries();
+  const totalInCents = parseMoneyToCents(ui.buyModalTotalInput.value);
+
+  if (selectedGroceries.length === 0) {
+    currentPurchaseDraft = null;
+    renderBuyModalItems();
+    return;
+  }
+
+  if (totalInCents === null) {
+    currentPurchaseDraft = {
+      purchases: selectedGroceries.map((grocery) => ({
+        groceryId: grocery.id,
+        priceInCents: 0,
+      })),
+    };
+    renderBuyModalItems();
+    return;
+  }
+
+  const splitPrices = splitTotalAcrossItems(
+    totalInCents,
+    selectedGroceries.length,
+  );
+
+  currentPurchaseDraft = {
+    purchases: selectedGroceries.map((grocery, index) => ({
+      groceryId: grocery.id,
+      priceInCents: splitPrices[index] ?? 0,
+    })),
+  };
+
+  renderBuyModalItems();
+};
+
+const openBuyModal = (): void => {
+  if (selectedGroceryIds.size === 0) {
+    showAlert("Select at least one grocery first.");
+    return;
+  }
+
+  if (!buyModal) {
+    return;
+  }
+
+  if (ui.buyModalTotalInput) {
+    ui.buyModalTotalInput.value = "";
+  }
+
+  currentPurchaseDraft = null;
+  renderBuyModalItems();
+  buyModal.show();
+};
+
+const closeBuyModal = (): void => {
+  buyModal?.hide();
+};
+
+const handlePreparePurchase = (): void => {
+  const draft = buildPurchaseDraftFromInputs();
+
+  if (!draft || draft.purchases.length === 0) {
+    showAlert(
+      "Select groceries and enter prices before preparing the purchase.",
+    );
+    return;
+  }
+
+  currentPurchaseDraft = draft;
+
+  console.log("Prepared grocery purchase payload:", currentPurchaseDraft);
+  showAlert("Purchase prepared locally. API submission is not wired yet.");
+  closeBuyModal();
 };
 
 const addGrocery = async (): Promise<void> => {
@@ -299,6 +678,22 @@ const deleteGrocery = async (groceryId: number): Promise<void> => {
 const initAddButton = (): void => {
   ui.addButton?.addEventListener("click", async () => {
     await addGrocery();
+  });
+
+  ui.boughtButton?.addEventListener("click", () => {
+    openBuyModal();
+  });
+
+  ui.buyModalTotalInput?.addEventListener("input", () => {
+    syncPurchasePricesFromTotal();
+  });
+
+  ui.buyModalConfirm?.addEventListener("click", () => {
+    handlePreparePurchase();
+  });
+
+  ui.buyModalClose?.addEventListener("click", () => {
+    closeBuyModal();
   });
 
   ui.nameInput?.addEventListener("keydown", async (event) => {

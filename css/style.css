@@ -448,6 +448,24 @@ body {
   filter: brightness(1.02);
 }
 
+.groceries-bought-btn {
+  background: #ffffff;
+  border: 2px solid #00b09b;
+  color: #00b09b;
+  font-weight: 700;
+  padding-inline: 1.5rem;
+  min-width: 140px;
+}
+
+.groceries-bought-btn:hover:not(:disabled) {
+  background: #00b09b;
+  color: #ffffff;
+}
+
+.groceries-bought-btn:disabled {
+  opacity: 0.5;
+}
+
 .groceries-list-panel {
   border: 1px solid #e9ecef;
   border-radius: 16px;
@@ -481,6 +499,15 @@ body {
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
+.grocery-item.selected {
+  border-color: rgba(0, 176, 155, 0.45);
+  box-shadow: 0 8px 18px rgba(0, 176, 155, 0.12);
+}
+
+.grocery-select-checkbox {
+  margin-top: 0;
+}
+
 .grocery-meta {
   min-width: 0;
 }
@@ -506,4 +533,42 @@ body {
   font-size: 1.1rem;
   font-weight: 800;
   line-height: 1;
+}
+
+.groceries-buy-modal-content {
+  border-radius: 18px;
+}
+
+.groceries-buy-items {
+  max-height: min(44vh, 420px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.grocery-buy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #e9ecef;
+  background: #fafafa;
+}
+
+.grocery-buy-price-group {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.groceries-buy-confirm-btn {
+  background: linear-gradient(135deg, #00b09b, #96c93d);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+}
+
+.groceries-buy-confirm-btn:hover {
+  color: #ffffff;
+  filter: brightness(1.02);
 }

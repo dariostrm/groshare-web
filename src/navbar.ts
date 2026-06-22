@@ -52,6 +52,10 @@ const generateNavbar = (): string => {
     // Show these items only when logged in
     navItems += `
       <li class="nav-item">
+        <a class="nav-link ${isActivePage("debts.html") ? "active" : ""}" 
+           href="${pathPrefix}debts.html">Debts</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link ${isActivePage("groceries.html") ? "active" : ""}" 
            href="${pathPrefix}groceries.html">Groceries</a>
       </li>

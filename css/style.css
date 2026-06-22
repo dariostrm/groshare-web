@@ -672,3 +672,19 @@ body {
   background: #00b09b;
   color: #ffffff;
 }
+
+.debts-settle-modal-content {
+  border-radius: 18px;
+}
+
+.debt-settle-submit-btn {
+  background: linear-gradient(135deg, #00b09b, #96c93d);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+}
+
+.debt-settle-submit-btn:hover {
+  color: #ffffff;
+  filter: brightness(1.02);
+}

@@ -1,3 +1,4 @@
+import { api } from "../api.js";
 import { getAuthToken, isLoggedIn } from "../auth.js";
 
 type DebtRoommate = {
@@ -15,6 +16,12 @@ type DebtsState = {
   debts: DebtEntry[];
 };
 
+type SettlementDraft = {
+  recipientId: number;
+  amountInCents: number;
+  recipientUsername: string;
+};
+
 const ui = {
   balanceBanner: document.getElementById(
     "debts-balance-banner",
@@ -26,17 +33,41 @@ const ui = {
     "debts-balance-label",
   ) as HTMLParagraphElement | null,
   debtsList: document.getElementById("debts-list") as HTMLDivElement | null,
+  settleModal: document.getElementById("debts-settle-modal") as HTMLDivElement | null,
+  settleModalTitle: document.getElementById(
+    "debts-settle-modal-title",
+  ) as HTMLHeadingElement | null,
+  settleModalInput: document.getElementById(
+    "debts-settle-amount-input",
+  ) as HTMLInputElement | null,
+  settleModalSubmit: document.getElementById(
+    "debts-settle-submit",
+  ) as HTMLButtonElement | null,
+  settleModalClose: document.getElementById(
+    "debts-settle-close",
+  ) as HTMLButtonElement | null,
 };
 
-const dummyDebts: DebtsState = {
-  totalNetCents: 1840,
-  debts: [
-    { roommate: { id: 1, username: "alex" }, amountCents: 1240 },
-    { roommate: { id: 2, username: "maria" }, amountCents: -680 },
-    { roommate: { id: 3, username: "sam" }, amountCents: 0 },
-    { roommate: { id: 4, username: "jordan" }, amountCents: 1280 },
-  ],
+const bootstrapWindow = window as Window & {
+  bootstrap?: {
+    Modal: new (element: Element) => {
+      show(): void;
+      hide(): void;
+    };
+  };
 };
+
+const settleModal =
+  ui.settleModal && bootstrapWindow.bootstrap
+    ? new bootstrapWindow.bootstrap.Modal(ui.settleModal)
+    : null;
+
+let currentDebts: DebtsState = {
+  totalNetCents: 0,
+  debts: [],
+};
+
+let currentSettlementDraft: SettlementDraft | null = null;
 
 const redirectToLogin = (): void => {
   window.location.href = "login.html";
@@ -78,6 +109,26 @@ const formatCurrency = (valueInCents: number): string => {
   }).format(Math.abs(valueInCents) / 100);
 };
 
+const formatCurrencyForInput = (valueInCents: number): string => {
+  return (Math.abs(valueInCents) / 100).toFixed(2);
+};
+
+const parseMoneyToCents = (value: string): number | null => {
+  const trimmedValue = value.trim();
+
+  if (!/^\d+(?:\.\d{1,2})?$/.test(trimmedValue)) {
+    return null;
+  }
+
+  const parsedValue = Number.parseFloat(trimmedValue);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 0) {
+    return null;
+  }
+
+  return Math.round(parsedValue * 100);
+};
+
 const createAvatar = (username: string): HTMLDivElement => {
   const hash = fnv1a(username.trim().toLowerCase());
   const hue = hash % 360;
@@ -103,6 +154,22 @@ const getHeaders = (): HeadersInit => ({
   Accept: "application/json",
 });
 
+const showAlert = (message: string): void => {
+  window.alert(message);
+};
+
+const readErrorMessage = async (
+  response: Response,
+  fallback: string,
+): Promise<string> => {
+  try {
+    const errorData = (await response.json()) as { error?: string };
+    return errorData.error || response.statusText || fallback;
+  } catch {
+    return response.statusText || fallback;
+  }
+};
+
 const renderBalanceBanner = (totalNetCents: number): void => {
   if (!ui.balanceBanner || !ui.balanceValue || !ui.balanceLabel) {
     return;
@@ -126,6 +193,14 @@ const renderBalanceBanner = (totalNetCents: number): void => {
     ui.balanceLabel.textContent = "Net balance";
     ui.balanceBanner.classList.add("debts-banner-neutral");
   }
+};
+
+const clearDebtsList = (): void => {
+  if (!ui.debtsList) {
+    return;
+  }
+
+  ui.debtsList.innerHTML = "";
 };
 
 const renderDebts = (debtsState: DebtsState): void => {
@@ -171,14 +246,145 @@ const renderDebts = (debtsState: DebtsState): void => {
     amount.className = `debt-amount ${debt.amountCents >= 0 ? "text-success" : "text-danger"}`;
     amount.textContent = `${debt.amountCents >= 0 ? "+" : "-"}${formatCurrency(debt.amountCents)}`;
 
-    const settleButton = document.createElement("button");
-    settleButton.type = "button";
-    settleButton.className = "btn debt-settle-btn";
-    settleButton.textContent = "Settle";
+    if (debt.amountCents < 0) {
+      const settleButton = document.createElement("button");
+      settleButton.type = "button";
+      settleButton.className = "btn debt-settle-btn";
+      settleButton.textContent = "Settle";
+      settleButton.addEventListener("click", () => {
+        openSettleModal({
+          recipientId: debt.roommate.id,
+          amountInCents: Math.abs(debt.amountCents),
+          recipientUsername: debt.roommate.username,
+        });
+      });
 
-    row.append(content, amount, settleButton);
+      row.append(content, amount, settleButton);
+      debtsList.appendChild(row);
+      return;
+    }
+
+    row.append(content, amount);
     debtsList.appendChild(row);
   });
+};
+
+const openSettleModal = (draft: SettlementDraft): void => {
+  if (!settleModal || !ui.settleModalTitle || !ui.settleModalInput) {
+    return;
+  }
+
+  currentSettlementDraft = draft;
+  ui.settleModalTitle.textContent = `How much money did you give back to ${draft.recipientUsername}?`;
+  ui.settleModalInput.value = formatCurrencyForInput(draft.amountInCents);
+
+  settleModal.show();
+  ui.settleModalInput.focus();
+  ui.settleModalInput.select();
+};
+
+const closeSettleModal = (): void => {
+  settleModal?.hide();
+};
+
+const sanitizeMoneyInput = (input: HTMLInputElement): void => {
+  const rawValue = input.value;
+  const numericValue = rawValue.replace(/[^0-9.]/g, "");
+  const segments = numericValue.split(".");
+  const integerPart = segments[0] || "";
+  const decimalPart = segments.slice(1).join("").slice(0, 2);
+
+  let nextValue = integerPart;
+
+  if (decimalPart.length > 0) {
+    nextValue = `${integerPart || "0"}.${decimalPart}`;
+  } else if (rawValue.startsWith(".")) {
+    nextValue = integerPart ? integerPart : "0";
+  }
+
+  if (nextValue !== rawValue) {
+    input.value = nextValue;
+  }
+};
+
+const fetchDebts = async (): Promise<void> => {
+  if (!ui.debtsList) {
+    return;
+  }
+
+  try {
+    const response = await fetch(api("apartment/debts"), {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (response.status === 404) {
+      window.location.href = "no-apartment.html";
+      return;
+    }
+
+    if (response.status === 401) {
+      showAlert("Your session expired. Please log in again.");
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      showAlert(await readErrorMessage(response, "Could not load debts."));
+      return;
+    }
+
+    currentDebts = (await response.json()) as DebtsState;
+    renderBalanceBanner(currentDebts.totalNetCents);
+    renderDebts(currentDebts);
+  } catch (error) {
+    console.error("Error loading debts:", error);
+    showAlert("Server connection error while loading debts.");
+  }
+};
+
+const submitSettlement = async (): Promise<void> => {
+  if (!currentSettlementDraft || !ui.settleModalInput) {
+    return;
+  }
+
+  const amountInCents = parseMoneyToCents(ui.settleModalInput.value);
+
+  if (amountInCents === null || amountInCents <= 0) {
+    showAlert("Enter a valid positive amount.");
+    return;
+  }
+
+  try {
+    const response = await fetch(api("apartment/debts/settle"), {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        recipientId: currentSettlementDraft.recipientId,
+        amountInCents,
+      }),
+    });
+
+    if (response.status === 401 || response.status === 403 || response.status === 400) {
+      showAlert(await readErrorMessage(response, "Could not settle debt."));
+      if (response.status === 401) {
+        redirectToLogin();
+      }
+      return;
+    }
+
+    if (response.status !== 204 && !response.ok) {
+      showAlert(await readErrorMessage(response, "Could not settle debt."));
+      return;
+    }
+
+    currentSettlementDraft = null;
+    closeSettleModal();
+    await fetchDebts();
+  } catch (error) {
+    console.error("Error settling debt:", error);
+    showAlert("Server connection error while settling debt.");
+  }
 };
 
 const initPage = (): void => {
@@ -187,8 +393,21 @@ const initPage = (): void => {
     return;
   }
 
-  renderBalanceBanner(dummyDebts.totalNetCents);
-  renderDebts(dummyDebts);
+  ui.settleModalInput?.addEventListener("input", () => {
+    if (ui.settleModalInput) {
+      sanitizeMoneyInput(ui.settleModalInput);
+    }
+  });
+
+  ui.settleModalSubmit?.addEventListener("click", () => {
+    void submitSettlement();
+  });
+
+  ui.settleModalClose?.addEventListener("click", () => {
+    closeSettleModal();
+  });
+
+  void fetchDebts();
 };
 
 document.addEventListener("DOMContentLoaded", initPage);

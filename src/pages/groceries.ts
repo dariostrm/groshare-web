@@ -134,14 +134,44 @@ const formatCurrency = (valueInCents: number): string => {
   }).format(valueInCents / 100);
 };
 
+const formatMoneyInputValue = (valueInCents: number): string => {
+  return (valueInCents / 100).toFixed(2);
+};
+
 const parseMoneyToCents = (value: string): number | null => {
-  const parsedValue = Number.parseFloat(value);
+  const trimmedValue = value.trim();
+
+  if (!/^\d+(?:\.\d{1,2})?$/.test(trimmedValue)) {
+    return null;
+  }
+
+  const parsedValue = Number.parseFloat(trimmedValue);
 
   if (!Number.isFinite(parsedValue) || parsedValue < 0) {
     return null;
   }
 
   return Math.round(parsedValue * 100);
+};
+
+const sanitizeMoneyInput = (input: HTMLInputElement): void => {
+  const rawValue = input.value;
+  const numericValue = rawValue.replace(/[^0-9.]/g, "");
+  const segments = numericValue.split(".");
+  const integerPart = segments[0] || "";
+  const decimalPart = segments.slice(1).join("").slice(0, 2);
+
+  let nextValue = integerPart;
+
+  if (decimalPart.length > 0) {
+    nextValue = `${integerPart || "0"}.${decimalPart}`;
+  } else if (rawValue.startsWith(".")) {
+    nextValue = integerPart ? integerPart : "0";
+  }
+
+  if (nextValue !== rawValue) {
+    input.value = nextValue;
+  }
 };
 
 const splitTotalAcrossItems = (
@@ -451,7 +481,7 @@ const renderBuyModalItems = (): void => {
     return;
   }
 
-  selectedGroceries.forEach((grocery, index) => {
+  selectedGroceries.forEach((grocery) => {
     const draftAmount =
       currentPurchaseDraft?.purchases.find(
         (purchase) => purchase.groceryId === grocery.id,
@@ -466,16 +496,18 @@ const renderBuyModalItems = (): void => {
         <div class="text-muted small text-truncate">Added by ${grocery.addedByUsername}</div>
       </div>
       <div class="grocery-buy-price-group">
-        <label class="form-label small mb-1" for="grocery-buy-price-${grocery.id}">Price in cents</label>
+        <label class="form-label small mb-1" for="grocery-buy-price-${grocery.id}">Price</label>
         <input
           id="grocery-buy-price-${grocery.id}"
           data-grocery-buy-price-input="true"
           data-grocery-id="${grocery.id}"
           type="number"
           min="0"
-          step="1"
+          step="0.01"
+          inputmode="decimal"
+          pattern="^\\d+(?:\\.\\d{0,2})?$"
           class="form-control"
-          value="${draftAmount}"
+          value="${formatMoneyInputValue(draftAmount)}"
         />
       </div>
     `;
@@ -485,6 +517,10 @@ const renderBuyModalItems = (): void => {
     );
 
     priceInput?.addEventListener("input", () => {
+      if (priceInput) {
+        sanitizeMoneyInput(priceInput);
+      }
+
       currentPurchaseDraft = buildPurchaseDraftFromInputs();
     });
 
@@ -509,12 +545,12 @@ const buildPurchaseDraftFromInputs = (): PurchaseDraft | null => {
 
   inputs.forEach((input) => {
     const groceryId = Number.parseInt(input.dataset.groceryId || "", 10);
-    const priceInCents = Number.parseInt(input.value, 10);
+    const priceInCents = parseMoneyToCents(input.value);
 
-    if (!Number.isNaN(groceryId) && Number.isFinite(priceInCents)) {
+    if (!Number.isNaN(groceryId) && priceInCents !== null) {
       purchases.push({
         groceryId,
-        priceInCents: Math.max(0, priceInCents),
+        priceInCents,
       });
     }
   });
@@ -597,9 +633,55 @@ const handlePreparePurchase = (): void => {
 
   currentPurchaseDraft = draft;
 
-  console.log("Prepared grocery purchase payload:", currentPurchaseDraft);
-  showAlert("Purchase prepared locally. API submission is not wired yet.");
-  closeBuyModal();
+  void submitPurchase();
+};
+
+const submitPurchase = async (): Promise<void> => {
+  if (!currentPurchaseDraft || currentPurchaseDraft.purchases.length === 0) {
+    showAlert(
+      "Select groceries and enter prices before preparing the purchase.",
+    );
+    return;
+  }
+
+  try {
+    const response = await fetch(api("apartment/groceries/buy"), {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        purchases: currentPurchaseDraft.purchases.map((purchase) => ({
+          id: purchase.groceryId,
+          priceInCents: purchase.priceInCents,
+        })),
+      }),
+    });
+
+    if (response.status === 401) {
+      showAlert(
+        await readErrorMessage(
+          response,
+          "Your session expired. Please log in again.",
+        ),
+      );
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      showAlert(
+        await readErrorMessage(response, "Could not complete purchase."),
+      );
+      return;
+    }
+
+    selectedGroceryIds.clear();
+    currentPurchaseDraft = null;
+    closeBuyModal();
+    await loadGroceries();
+  } catch (error) {
+    console.error("Error submitting purchase:", error);
+    showAlert("Server connection error while completing purchase.");
+  }
 };
 
 const addGrocery = async (): Promise<void> => {
@@ -685,6 +767,10 @@ const initAddButton = (): void => {
   });
 
   ui.buyModalTotalInput?.addEventListener("input", () => {
+    if (ui.buyModalTotalInput) {
+      sanitizeMoneyInput(ui.buyModalTotalInput);
+    }
+
     syncPurchasePricesFromTotal();
   });
 

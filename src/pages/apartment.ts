@@ -89,6 +89,54 @@ const getHeaders = (): HeadersInit => ({
   Accept: "application/json",
 });
 
+const fnv1a = (value: string): number => {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return hash >>> 0;
+};
+
+const getAvatarInitial = (username: string): string => {
+  const trimmedUsername = username.trim();
+
+  for (const char of trimmedUsername) {
+    if (/^[A-Z]$/.test(char)) {
+      return char;
+    }
+  }
+
+  for (const char of trimmedUsername) {
+    if (/^[a-z]$/.test(char)) {
+      return char;
+    }
+  }
+
+  return "?";
+};
+
+const createAvatar = (username: string): HTMLDivElement => {
+  const hash = fnv1a(username.trim().toLowerCase());
+  const hue = hash % 360;
+  const initial = getAvatarInitial(username).toUpperCase();
+
+  const avatar = document.createElement("div");
+  avatar.className =
+    "roommate-avatar flex-shrink-0 d-flex align-items-center justify-content-center";
+  avatar.style.backgroundColor = `hsl(${hue} 65% 42%)`;
+
+  const letter = document.createElement("span");
+  letter.className = "roommate-avatar-letter";
+  letter.textContent = initial;
+  letter.style.color = `hsl(${hue} 65% 84%)`;
+
+  avatar.appendChild(letter);
+  return avatar;
+};
+
 const setTextContent = (element: HTMLElement | null, value: string): void => {
   if (element) {
     element.textContent = value;
@@ -117,6 +165,11 @@ const renderRoommates = (roommates: ApartmentRoommate[]): void => {
 			<div class="roommate-avatar"></div>
 			<span class="roommate-name"></span>
 		`;
+
+    const avatarContainer = item.querySelector(".roommate-avatar");
+    if (avatarContainer) {
+      avatarContainer.replaceWith(createAvatar(roommate.username));
+    }
 
     const nameNode = item.querySelector(".roommate-name");
     if (nameNode) {

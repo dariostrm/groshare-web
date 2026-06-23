@@ -6,6 +6,10 @@ const ui = {
   usernameInput: document.getElementById("username") as HTMLInputElement,
   emailInput: document.getElementById("email") as HTMLInputElement,
   form: document.getElementById("profile-form") as HTMLFormElement,
+  avatar: document.getElementById("profile-avatar") as HTMLDivElement,
+  avatarLetter: document.getElementById(
+    "profile-avatar-letter",
+  ) as HTMLSpanElement,
   currentApartmentName: document.getElementById(
     "current-apartment-name",
   ) as HTMLElement,
@@ -14,6 +18,47 @@ const ui = {
   ) as HTMLButtonElement,
 };
 
+const fnv1a = (value: string): number => {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return hash >>> 0;
+};
+
+const getAvatarInitial = (username: string): string => {
+  const trimmedUsername = username.trim();
+
+  for (const char of trimmedUsername) {
+    if (/^[A-Z]$/.test(char)) {
+      return char;
+    }
+  }
+
+  for (const char of trimmedUsername) {
+    if (/^[a-z]$/.test(char)) {
+      return char;
+    }
+  }
+
+  return "?";
+};
+
+const updateAvatar = (username: string): void => {
+  if (!ui.avatar || !ui.avatarLetter) {
+    return;
+  }
+
+  const hash = fnv1a(username.trim().toLowerCase());
+  const hue = hash % 360;
+
+  ui.avatar.style.backgroundColor = `hsl(${hue} 65% 42%)`;
+  ui.avatarLetter.textContent = getAvatarInitial(username).toUpperCase();
+  ui.avatarLetter.style.color = `hsl(${hue} 65% 84%)`;
+};
 
 const setApartmentState = (apartmentName: string | null): void => {
   if (ui.currentApartmentName) {
@@ -71,22 +116,21 @@ window.addEventListener("load", async function () {
   if (ui.usernameInput && ui.emailInput) {
     try {
       // Sending GET request to fetch user profile details
-        const response = await fetch(api("profile"),
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`, // Authentication token from localStorage
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+      const response = await fetch(api("profile"), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`, // Authentication token from localStorage
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      );
+      });
 
       if (response.ok) {
         const data = await response.json();
         // Populate inputs with data received from the backend
         ui.usernameInput.value = data.username;
         ui.emailInput.value = data.email;
+        updateAvatar(data.username);
         setApartmentState(data.apartmentName ?? null);
       } else {
         // If profile fetch fails, notify user and redirect to login/home
@@ -117,18 +161,17 @@ ui.form.addEventListener("submit", async (event) => {
 
   try {
     // Sending PUT request to update user profile
-    const response = await fetch(api("profile"),
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
+    const response = await fetch(api("profile"), {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(updatedData),
+    });
 
     if (response.ok) {
+      updateAvatar(ui.usernameInput.value);
       alert("Profile successfully updated!");
     } else {
       alert("Update failed! Please try again.");

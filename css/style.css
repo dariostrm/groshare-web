@@ -234,12 +234,12 @@ body {
 .app-placeholder {
   width: 100%;
   max-width: 350px;
-  height: 500px;
+  max-height: 500px;
   margin: 0 auto;
-  background-color: #e0e0e0;
+  object-fit: contain;
+  background-color: #f3f3f3;
   border-radius: 20px;
-  color: #777;
-  font-weight: 500;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
 }
 
 .dev-section {
